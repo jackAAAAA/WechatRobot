@@ -20,7 +20,7 @@ class DeepseekProvider(BaseProviderService):
         super().__init__(model)
         # Set default model if none provided
         if not self.model:
-            self.model = Config.DEEPSEEK_CHAT
+            self.model = Config.DEEPSEEK_DS_V3
     
     def process(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Process the request with DeepSeek
@@ -50,21 +50,10 @@ class DeepseekProvider(BaseProviderService):
         )
         
         return {
-            'content': 'Your request is being processed...',
+            #'content': 'Your request is being processed...',
             'provider': f'DeepSeek/{self.model}',
             'model': self.model,
             'async': True
-        }
-    
-    def get_available_models(self) -> Dict[str, str]:
-        """Get a list of available models for DeepSeek
-        
-        Returns:
-            Dictionary mapping model IDs to display names
-        """
-        return {
-            'deepseek-chat-70b-v1': 'DeepSeek Chat 70B',
-            'deepseek-coder': 'DeepSeek Coder'
         }
     
     @celery.task(name="deepseek_service.process_request")
@@ -83,7 +72,7 @@ class DeepseekProvider(BaseProviderService):
             # Initialize DeepSeek client
             client = OpenAI(
                 api_key=Config.DEEPSEEK_API_KEY,
-                base_url="https://api.deepseek.com/v1"
+                base_url=Config.DEEPSEEK_API_BASE
             )
             
             # Make the API call
@@ -106,14 +95,13 @@ class DeepseekProvider(BaseProviderService):
                 adapter = WechatAdapter()
             elif source == 'wecom':
                 from app.adapters.source_adapters.wecom_adapter import WecomAdapter
-                adapter = WecomAdapter()
+                adapter = WecomAdapter(provider="DeepSeek", model="DS-V3")
             else:
                 logger.error(f"Unknown source: {source}")
                 return
             
             # Send the message
-            adapter.send_message(user_id, f"DeepSeek/{model}: {content}")
-            logger.info(f"DeepSeek response sent to user {user_id}")
+            adapter.send_message(user_id, content, f"DeepSeek/{model}")
             
         except Exception as e:
             logger.error(f"Error processing DeepSeek request: {str(e)}")
@@ -124,7 +112,7 @@ class DeepseekProvider(BaseProviderService):
                     adapter = WechatAdapter()
                 elif source == 'wecom':
                     from app.adapters.source_adapters.wecom_adapter import WecomAdapter
-                    adapter = WecomAdapter()
+                    adapter = WecomAdapter(provider="DeepSeek", model="DS-V3")
                 else:
                     return
                 

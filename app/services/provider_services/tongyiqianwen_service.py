@@ -1,5 +1,4 @@
 import logging
-import json
 import httpx
 from typing import Dict, Any, Optional
 
@@ -9,11 +8,11 @@ from app.utils.celery_utils import celery
 
 logger = logging.getLogger(__name__)
 
-class TencentProvider(BaseProviderService):
-    """Service for handling Tencent AI API requests"""
+class TongyiqianwenProvider(BaseProviderService):
+    """Service for handling Tongyiqianwen AI API requests"""
     
     def __init__(self, model: Optional[str] = None):
-        """Initialize the Tencent provider service
+        """Initialize the Tongyiqianwen provider service
         
         Args:
             model: The specific model to use, or None to use the default
@@ -21,10 +20,10 @@ class TencentProvider(BaseProviderService):
         super().__init__(model)
         # Set default model if none provided
         if not self.model:
-            self.model = Config.TENCENT_MODEL
+            self.model = Config.GEEK_MODEL_QWQ_PLUS
     
     def process(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Process the request with Tencent
+        """Process the request with Tongyiqianwen
         
         Args:
             params: The request parameters
@@ -36,7 +35,7 @@ class TencentProvider(BaseProviderService):
             # For non-text messages or other unsupported types
             return {
                 'content': 'Sorry, I can only process text messages.',
-                'provider': 'Tencent',
+                'provider': '通义千问',
                 'model': self.model,
                 'async': False
             }
@@ -51,15 +50,15 @@ class TencentProvider(BaseProviderService):
         )
         
         return {
-            'content': 'Your request is being processed...',
-            'provider': f'Tencent/{self.model}',
+            #'content': 'Your request is being processed...',
+            'provider': f'通义千问/{self.model}',
             'model': self.model,
             'async': True
         }
     
-    @celery.task(name="tencent_service.process_request")
+    @celery.task(name="Tongyiqianwen_service.process_request")
     def _process_request_task(user_id: str, query: str, model: str, source: str):
-        """Celery task to process a request with Tencent
+        """Celery task to process a request with Tongyiqianwen
         
         Args:
             user_id: The user ID
@@ -68,43 +67,26 @@ class TencentProvider(BaseProviderService):
             source: The source of the request (wechat/wecom)
         """
         try:
-            # Implement Tencent API client
-            # This is a simplified version - you would need to implement
-            # the actual API client for Tencent's services
+            from openai import OpenAI
             
-            # Example implementation using HTTPX
-            api_key = Config.TENCENT_API_KEY
-            
-            # Build the request
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {api_key}"
-            }
-            
-            payload = {
-                "model": model,
-                "messages": [
-                    {"role": "user", "content": query}
-                ],
-                "temperature": 0.7,
-                "max_tokens": 4000
-            }
-            
-            # Make the API call
-            response = httpx.post(
-                "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=60.0
+            # Initialize Q client
+            client = OpenAI(
+                api_key=Config.GEEK_API_KEY_2,
+                base_url=Config.GEEK_API_BASE
             )
             
-            # Parse the response
-            if response.status_code == 200:
-                result = response.json()
-                content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
-            else:
-                logger.error(f"Tencent API error: {response.status_code} {response.text}")
-                content = f"Error: {response.status_code}"
+            # Make the API call
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "user", "content": query}
+                ],
+                temperature=0.7,
+                max_tokens=139000,
+                stream=True
+            )
+            
+            content = BaseProviderService.transfer_stream_to_text(response) 
             
             # Send the response back to the user
             # Dynamically import the appropriate adapter
@@ -113,17 +95,16 @@ class TencentProvider(BaseProviderService):
                 adapter = WechatAdapter()
             elif source == 'wecom':
                 from app.adapters.source_adapters.wecom_adapter import WecomAdapter
-                adapter = WecomAdapter()
+                adapter = WecomAdapter(provider="Tongyiqianwen", model="QWQ-Plus")
             else:
                 logger.error(f"Unknown source: {source}")
                 return
             
             # Send the message
-            adapter.send_message(user_id, f"Tencent/{model}: {content}")
-            logger.info(f"Tencent response sent to user {user_id}")
+            adapter.send_message(user_id, content, f"通义千问/{model}")
             
         except Exception as e:
-            logger.error(f"Error processing Tencent request: {str(e)}")
+            logger.error(f"Error processing Tongyiqianwen request: {str(e)}")
             # Try to notify the user about the error
             try:
                 if source == 'wechat':
@@ -131,10 +112,10 @@ class TencentProvider(BaseProviderService):
                     adapter = WechatAdapter()
                 elif source == 'wecom':
                     from app.adapters.source_adapters.wecom_adapter import WecomAdapter
-                    adapter = WecomAdapter()
+                    adapter = WecomAdapter(provider="Tongyiqianwen", model="QWQ-Plus")
                 else:
                     return
                 
-                adapter.send_message(user_id, f"Sorry, there was an error processing your request with Tencent: {str(e)}")
+                adapter.send_message(user_id, f"Sorry, there was an error processing your request with Tongyiqianwen: {str(e)}")
             except:
                 logger.error("Failed to send error notification to user") 

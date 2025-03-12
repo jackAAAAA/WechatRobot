@@ -24,7 +24,7 @@ def init_celery(app: Flask):
         'app.adapters.source_adapters.wechat_adapter',
         'app.adapters.source_adapters.wecom_adapter',
         'app.services.provider_services.groq_service',
-        'app.services.provider_services.tencent_service',
+        'app.services.provider_services.tongyiqianwen_service',
         'app.services.provider_services.deepseek_service',
     ], force=True)
     

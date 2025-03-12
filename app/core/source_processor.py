@@ -25,6 +25,7 @@ class SourceProcessor:
         """
         try:
             # Convert source name to proper class name format (e.g., 'wechat' -> 'WechatAdapter')
+            logger.info(f"load adapter for source {self.source}")
             adapter_class_name = f"{self.source.capitalize()}Adapter"
             module = importlib.import_module(f"app.adapters.source_adapters.{self.source}_adapter")
             adapter_class = getattr(module, adapter_class_name)

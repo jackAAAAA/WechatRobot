@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
+import logging
 
 class BaseProviderService(ABC):
     """Base class for all AI provider services"""
@@ -24,11 +25,20 @@ class BaseProviderService(ABC):
         """
         pass
     
-    @abstractmethod
-    def get_available_models(self) -> Dict[str, str]:
-        """Get a list of available models for this provider
+    @staticmethod
+    def transfer_stream_to_text(stream: Any) -> str:
+        """Transfer the stream to text
         
+        Args:
+            response: The streaming response from the API
+            
         Returns:
-            Dictionary mapping model IDs to display names
+            The complete text from the stream
         """
-        pass 
+        buffer = []
+        for chunk in stream:
+            content = chunk.choices[0].delta.content or ""
+            buffer.append(content)
+
+        full_content = ''.join([str(item) for item in buffer if item]) 
+        return full_content 

@@ -15,13 +15,45 @@ logger = logging.getLogger(__name__)
 class WecomAdapter(BaseSourceAdapter):
     """Adapter for handling WeCom (Enterprise WeChat) requests"""
     
-    def __init__(self):
-        """Initialize the WeCom adapter with its crypto instance"""
+    def __init__(self, provider=None, model=None):
+        """Initialize the WeCom adapter with its crypto instance
+        
+        Args:
+            provider: The AI provider name (e.g., 'Groq', 'Tongyiqianwen')
+            model: The model name (e.g., 'deepseek-r1-distill-llama-70b', 'QWQ-Plus')
+        """
         self.token = Config.WECOM_TOKEN
         self.encoding_aes_key = Config.WECOM_ENCODING_AES_KEY
         self.corp_id = Config.WECOM_CORP_ID
-        self.agent_id = Config.WECOM_AGENT_ID
+        
+        # Set default agent_id and app_secret
+        self.app_secret = Config.WECOM_APP_SECRET_DEFAULT
+        self.agent_id = Config.WECOM_AGENT_ID_DEFAULT
+        
+        # If provider and model are specified, try to get the corresponding credentials
+        if provider and model:
+            # Create a key for environment variable lookup
+            # Replace special characters that might not be valid in env var names
+            env_key = f"{provider}_{model}".upper().replace("-", "_").replace(".", "_")
+            
+            # Try to get app_secret for this provider/model combination
+            app_secret_var = f"WECOM_APP_SECRET_{env_key}"
+            agent_id_var = f"WECOM_AGENT_ID_{env_key}"
+            
+            if hasattr(Config, app_secret_var) and getattr(Config, app_secret_var):
+                self.app_secret = getattr(Config, app_secret_var)
+                logger.info(f"Using custom app_secret for {provider}/{model}")
+            
+            if hasattr(Config, agent_id_var) and getattr(Config, agent_id_var):
+                self.agent_id = getattr(Config, agent_id_var)
+                logger.info(f"Using custom agent_id for {provider}/{model}")
+        
+        # Initialize crypto
         self.crypto = WeChatCrypto(self.token, self.encoding_aes_key, self.corp_id)
+        
+        # Save the provider and model for reference
+        self.provider = provider
+        self.model = model
     
     def verify(self, request: Request) -> Response:
         """Handle WeCom verification (GET requests)
@@ -45,6 +77,7 @@ class WecomAdapter(BaseSourceAdapter):
                 nonce,
                 echostr
             )
+
             return decrypted_echostr
         except Exception as e:
             logger.error(f"WeCom verification error: {str(e)}")
@@ -120,7 +153,7 @@ class WecomAdapter(BaseSourceAdapter):
                 <FromUserName><![CDATA[{params['to_user']}]]></FromUserName>
                 <CreateTime>{int(time.time())}</CreateTime>
                 <MsgType><![CDATA[text]]></MsgType>
-                <Content><![CDATA[收到您的请求，正在处理中...]]></Content>
+                <Content><![CDATA[正在思考，请稍候...]]></Content>
             </xml>"""
             
             # Encrypt the response
@@ -142,6 +175,7 @@ class WecomAdapter(BaseSourceAdapter):
         Args:
             user_id: The WeCom user ID
             message: The message content
+            model: The model name used for the message prefix
             
         Returns:
             True if successful, False otherwise
@@ -149,15 +183,17 @@ class WecomAdapter(BaseSourceAdapter):
         try:
             client = WeChatClient(
                 self.corp_id,
-                Config.WECOM_APP_SECRET
+                self.app_secret  # Using the instance-specific app_secret
             )
             
-            # Send the message
-            client.message.send_text(
-                agent_id=self.agent_id,
-                user_ids=[user_id],
-                content=message
-            )
+            # 分段发送
+            for index, chunk in enumerate(self.split_content(message, 2000)):
+                client.message.send_text(
+                    agent_id=self.agent_id,  # Using the instance-specific agent_id
+                    user_ids=[user_id],  # Wrap user_id in a list
+                    content=f"{model}（{index+1}）: {chunk}"
+                )
+                time.sleep(1)  # 避免发送频率过高
             return True
         except Exception as e:
             logger.error(f"Error sending WeCom message: {str(e)}")

@@ -86,7 +86,7 @@ class WechatAdapter(BaseSourceAdapter):
             initial_response = self._build_text_response(
                 params['to_user'], 
                 params['from_user'], 
-                "请稍候，正在处理您的请求..."
+                "正在思考，请稍候..."
             )
             
             return make_response(initial_response)
@@ -144,21 +144,3 @@ class WechatAdapter(BaseSourceAdapter):
         except Exception as e:
             logger.error(f"Error sending WeChat message: {str(e)}")
             return False
-    
-    # 将长文本按字节数分段
-    def split_content(self, content: str, max_length=2030) -> list:
-        chunks = []
-        current_chunk = ""
-        current_size = 0
-        for char in content:
-            char_size = len(char.encode('utf-8'))
-            if current_size + char_size > max_length:
-                chunks.append(current_chunk)
-                current_chunk = ""
-                current_size = 0
-            current_chunk += char
-            current_size += char_size
-        
-        if current_chunk:
-            chunks.append(current_chunk)
-        return chunks

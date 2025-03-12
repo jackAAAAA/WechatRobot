@@ -56,19 +56,6 @@ class GroqProvider(BaseProviderService):
             'async': True
         }
     
-    def get_available_models(self) -> Dict[str, str]:
-        """Get a list of available models for Groq
-        
-        Returns:
-            Dictionary mapping model IDs to display names
-        """
-        return {
-            'llama3-70b': 'Llama 3 70B',
-            'ds-r1-70b': 'Deepseek R1 70B',
-            'mixtral-8x7b': 'Mixtral 8x7B',
-            'llama3-8b': 'Llama 3 8B'
-        }
-    
     @celery.task(name="groq_service.process_request")
     def _process_request_task(user_id: str, query: str, model: str, source: str):
         """Celery task to process a request with Groq
@@ -105,13 +92,7 @@ class GroqProvider(BaseProviderService):
                 stream=True
             )
             
-            buffer = []
-            for chunk in response:
-                content = chunk.choices[0].delta.content or ""
-                buffer.append(content)
-
-            full_content = ''.join([str(item) for item in buffer if item])
-            logger.info(f"发送给用户的消息是: {full_content}")  
+            full_content = BaseProviderService.transfer_stream_to_text(response) 
             
             # Send the response back to the user
             # Dynamically import the appropriate adapter
@@ -120,7 +101,7 @@ class GroqProvider(BaseProviderService):
                 adapter = WechatAdapter()
             elif source == 'wecom':
                 from app.adapters.source_adapters.wecom_adapter import WecomAdapter
-                adapter = WecomAdapter()
+                adapter = WecomAdapter(provider="Groq", model="deepseek-r1-distill-llama-70b")
             else:
                 logger.error(f"Unknown source: {source}")
                 return
@@ -137,7 +118,7 @@ class GroqProvider(BaseProviderService):
                     adapter = WechatAdapter()
                 elif source == 'wecom':
                     from app.adapters.source_adapters.wecom_adapter import WecomAdapter
-                    adapter = WecomAdapter()
+                    adapter = WecomAdapter(provider="Groq", model="deepseek-r1-distill-llama-70b")
                 else:
                     return
                 

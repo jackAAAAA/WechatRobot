@@ -54,3 +54,21 @@ class BaseSourceAdapter(ABC):
             True if the message was sent successfully, False otherwise
         """
         pass 
+
+    # 将长文本按字节数分段
+    def split_content(self, content: str, max_length=2030) -> list:
+        chunks = []
+        current_chunk = ""
+        current_size = 0
+        for char in content:
+            char_size = len(char.encode('utf-8'))
+            if current_size + char_size > max_length:
+                chunks.append(current_chunk)
+                current_chunk = ""
+                current_size = 0
+            current_chunk += char
+            current_size += char_size
+        
+        if current_chunk:
+            chunks.append(current_chunk)
+        return chunks
