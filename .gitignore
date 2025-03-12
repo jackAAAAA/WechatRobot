@@ -1,0 +1,39 @@
+# Environment variables
+.env
+.env.*
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Redis dumps
+dump.rdb
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Celery files
+celerybeat-schedule
+celerybeat.pid 

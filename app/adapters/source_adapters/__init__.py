@@ -1,0 +1,1 @@
+# This file makes the source_adapters directory a Python package 
