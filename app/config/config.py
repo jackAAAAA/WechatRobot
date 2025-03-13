@@ -44,18 +44,27 @@ class Config:
     WECOM_APP_SECRET_DEEPSEEK_DS_V3=os.environ.get('WECOM_APP_SECRET_DEEPSEEK_DS_V3')
     WECOM_AGENT_ID_DEEPSEEK_DS_V3=os.environ.get('WECOM_AGENT_ID_DEEPSEEK_DS_V3')
     
+    # WeCom: Tencent/deepseek-r1-671b
+    WECOM_APP_SECRET_TENCENT_DS_R1_671B=os.environ.get('WECOM_APP_SECRET_TENCENT_DS_R1_671B')
+    WECOM_AGENT_ID_TENCENT_DS_R1_671B=os.environ.get('WECOM_AGENT_ID_TENCENT_DS_R1_671B')
+
     # AI API configuration
+    # DeepSeek configurations
     DEEPSEEK_API_BASE = os.environ.get('DEEPSEEK_API_BASE')
     DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY')
     DEEPSEEK_DS_V3 = os.environ.get('DEEPSEEK_DS_V3')
-    
+    # Groq configurations
     GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
     GROQ_DS_R1_70B_MODEL = os.environ.get('GROQ_DS_R1_70B_MODEL')
-    
+    # Geek configuration
     GEEK_API_KEY = os.environ.get('GEEK_API_KEY')
     GEEK_API_KEY_2 = os.environ.get('GEEK_API_KEY_2')
     GEEK_API_BASE = os.environ.get('GEEK_API_BASE')
     GEEK_MODEL_QWQ_PLUS = os.environ.get('GEEK_MODEL_QWQ_PLUS')
+    # Tencent configurations
+    TENCENT_API_BASE = os.environ.get('TENCENT_API_BASE')
+    TENCENT_API_KEY = os.environ.get('TENCENT_API_KEY')
+    TENCENT_MODEL_DEEPSEEK_R1_671B = os.environ.get('TENCENT_MODEL_DEEPSEEK_R1_671B')
     
     # HTTP Proxy configuration (if needed)
     HTTP_PROXY = os.environ.get('HTTP_PROXY')
