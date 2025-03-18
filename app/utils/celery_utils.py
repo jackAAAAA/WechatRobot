@@ -27,6 +27,8 @@ def init_celery(app: Flask):
         'app.services.provider_services.tongyiqianwen_service',
         'app.services.provider_services.deepseek_service',
         'app.services.provider_services.tencent_service',
+        'app.services.provider_services.deepseek_service',
+        'app.services.provider_services.geekai_service',
     ], force=True)
     
     # Apply Flask app context to Celery tasks

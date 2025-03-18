@@ -34,7 +34,7 @@ class WecomAdapter(BaseSourceAdapter):
         if provider and model:
             # Create a key for environment variable lookup
             # Replace special characters that might not be valid in env var names
-            env_key = f"{provider}_{model}".upper().replace("-", "_").replace(".", "_").replace("－", "_")
+            env_key = f"{provider}_{model}".upper().replace("-", "_").replace(".", "_").replace("－", "_").replace(":", "_")
             
             # Try to get app_secret for this provider/model combination
             app_secret_var = f"WECOM_APP_SECRET_{env_key}"

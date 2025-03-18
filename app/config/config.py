@@ -48,6 +48,10 @@ class Config:
     WECOM_APP_SECRET_TENCENT_DS_R1_671B=os.environ.get('WECOM_APP_SECRET_TENCENT_DS_R1_671B')
     WECOM_AGENT_ID_TENCENT_DS_R1_671B=os.environ.get('WECOM_AGENT_ID_TENCENT_DS_R1_671B')
 
+    # WeCom: GeekAI/gemma-3-27b-it:free
+    WECOM_APP_SECRET_GEEKAI_GEMMA_3_27B_IT_FREE=os.environ.get('WECOM_APP_SECRET_GEEKAI_GEMMA_3_27B_IT_FREE')
+    WECOM_AGENT_ID_GEEKAI_GEMMA_3_27B_IT_FREE=os.environ.get('WECOM_AGENT_ID_GEEKAI_GEMMA_3_27B_IT_FREE')
+
     # AI API configuration
     # DeepSeek configurations
     DEEPSEEK_API_BASE = os.environ.get('DEEPSEEK_API_BASE')
@@ -61,6 +65,7 @@ class Config:
     GEEK_API_KEY_2 = os.environ.get('GEEK_API_KEY_2')
     GEEK_API_BASE = os.environ.get('GEEK_API_BASE')
     GEEK_MODEL_QWQ_PLUS = os.environ.get('GEEK_MODEL_QWQ_PLUS')
+    GEEK_MODEL_GEMMA_27B = os.environ.get('GEEK_MODEL_GEMMA_27B')
     # Tencent configurations
     TENCENT_API_BASE = os.environ.get('TENCENT_API_BASE')
     TENCENT_API_KEY = os.environ.get('TENCENT_API_KEY')
