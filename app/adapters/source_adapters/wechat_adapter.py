@@ -111,13 +111,25 @@ class WechatAdapter(BaseSourceAdapter):
         Returns:
             XML string in WeChat format
         """
+        # 立即返回文本
+#         return f"""
+# <xml>
+#     <ToUserName><![CDATA[{to_user}]]></ToUserName>
+#     <FromUserName><![CDATA[{from_user}]]></FromUserName>
+#     <CreateTime>{int(time.time())}</CreateTime>
+#     <MsgType><![CDATA[text]]></MsgType>
+#     <Content><![CDATA[{content}]]></Content>
+# </xml>"""
+        # 立即返回图片
         return f"""
 <xml>
     <ToUserName><![CDATA[{to_user}]]></ToUserName>
     <FromUserName><![CDATA[{from_user}]]></FromUserName>
     <CreateTime>{int(time.time())}</CreateTime>
-    <MsgType><![CDATA[text]]></MsgType>
-    <Content><![CDATA[{content}]]></Content>
+    <MsgType><![CDATA[image]]></MsgType>
+    <Image>
+        <MediaId><![CDATA[kaMSmt1j23Az0YO9YonIwAxlsBmITjQUf_7ggkVu4E3rpxhJqXjBhefOBho46nIJ]]></MediaId>
+    </Image>
 </xml>"""
     
     def send_message(self, user_id: str, message: str, model: str = "Unknown") -> bool:
@@ -140,6 +152,16 @@ class WechatAdapter(BaseSourceAdapter):
                     f"{model}（{index+1}）: {chunk}"
                 )
                 time.sleep(1)  # 避免发送频率过高
+            # 测试发送图片
+            client.message.send_image(user_id, "kaMSmt1j23Az0YO9YonIwAxlsBmITjQUf_7ggkVu4E3rpxhJqXjBhefOBho46nIJ")
+            # 测试发送图文
+            articles = [{
+                "title": "标题（可选）",
+                "description": "描述（可选）",
+                "url": "https://example.com",  # 用户点击后跳转的链接
+                "image": "https://static.geekai.co/image/2025/03/28/ac761527b9215fa167be41a4559bcb0b.png"  # 图片网络URL
+            }]
+            client.message.send_articles(user_id, articles)
             return True
         except Exception as e:
             logger.error(f"Error sending WeChat message: {str(e)}")
