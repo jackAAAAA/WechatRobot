@@ -92,6 +92,14 @@ class Config:
     WECOM_APP_SECRET_GEEKAI_GLM_Z1_FLASH=os.environ.get('WECOM_APP_SECRET_GEEKAI_GLM_Z1_FLASH')
     WECOM_AGENT_ID_GEEKAI_GLM_Z1_FLASH=os.environ.get('WECOM_AGENT_ID_GEEKAI_GLM_Z1_FLASH')
 
+    # Wecom: GeekAI/o3
+    WECOM_APP_SECRET_GEEKAI_O3=os.environ.get('WECOM_APP_SECRET_GEEKAI_O3')
+    WECOM_AGENT_ID_GEEKAI_O3=os.environ.get('WECOM_AGENT_ID_GEEKAI_O3')
+
+    # Wecom: GeekAI/grok-3-fast
+    WECOM_APP_SECRET_GEEKAI_GROK_3_FAST=os.environ.get('WECOM_APP_SECRET_GEEKAI_GROK_3_FAST')
+    WECOM_AGENT_ID_GEEKAI_GROK_3_FAST=os.environ.get('WECOM_AGENT_ID_GEEKAI_GROK_3_FAST')
+
     # AI API configuration
     # DeepSeek configurations
     DEEPSEEK_API_BASE = os.environ.get('DEEPSEEK_API_BASE')
